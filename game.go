@@ -176,20 +176,23 @@ func (g *Game) Update(dt float64) {
 func (g *Game) updateCarPhysics(dt float64) {
 	car := g.Car
 
-	// Apply acceleration based on input
-	if g.Keys["ArrowUp"] || g.Keys["w"] {
+	// Debug values before update
+	println("Before update - X:", car.X, "Speed:", car.Speed, "Steering:", car.Steering)
+
+	// Your existing code for applying acceleration
+	if g.Keys["ArrowUp"] || g.Keys["KeyW"] {
 		car.Acceleration = 8.0
-	} else if g.Keys["ArrowDown"] || g.Keys["s"] {
+	} else if g.Keys["ArrowDown"] || g.Keys["KeyS"] {
 		car.Acceleration = -4.0
 	} else {
 		car.Acceleration = 0
 	}
 
-	// Apply steering
-	if g.Keys["ArrowLeft"] || g.Keys["a"] {
-		car.Steering = -2.0
-	} else if g.Keys["ArrowRight"] || g.Keys["d"] {
-		car.Steering = 2.0
+	// Apply steering with increased effect
+	if g.Keys["ArrowLeft"] || g.Keys["KeyA"] {
+		car.Steering = -20.0 // Much higher value for noticeable turning
+	} else if g.Keys["ArrowRight"] || g.Keys["KeyD"] {
+		car.Steering = 20.0 // Much higher value
 	} else {
 		car.Steering = 0
 	}
@@ -207,10 +210,13 @@ func (g *Game) updateCarPhysics(dt float64) {
 		car.Speed = -car.MaxSpeed / 2
 	}
 
-	// Apply steering to X position
-	car.X += car.Steering * car.Speed * dt
+	// Make steering work even at low speeds
+	minEffectiveSpeed := 1.0
+	effectiveSpeed := math.Max(math.Abs(car.Speed), minEffectiveSpeed)
+	steeringEffect := car.Steering * effectiveSpeed * dt
+	car.X += steeringEffect
 
-	// Keep car on screen
+	// Keep car on screen (your existing code)
 	roadLeftEdge := float64((canvasWidth - roadWidth) / 2)
 	roadRightEdge := roadLeftEdge + roadWidth
 
@@ -219,6 +225,9 @@ func (g *Game) updateCarPhysics(dt float64) {
 	} else if car.X+car.Width/2 > roadRightEdge {
 		car.X = roadRightEdge - car.Width/2
 	}
+
+	// Debug values after update
+	println("After update - X:", car.X, "Speed:", car.Speed, "Steering:", car.Steering, "Effective steering:", steeringEffect)
 }
 
 // updateObstacles moves obstacles and removes those off-screen
@@ -575,6 +584,9 @@ func (g *Game) drawGameOver() {
 func (g *Game) UpdateInput(keyCode string, keyDown bool) {
 	// Update key state
 	g.Keys[keyCode] = keyDown
+
+	// Debug logging to console
+	println("Go received key:", keyCode, keyDown)
 
 	// Check for restart
 	if keyCode == "Space" && keyDown && g.GameOver {

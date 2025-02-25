@@ -1,144 +1,160 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Infinite Driving Game</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            margin: 0;
-            padding: 20px;
-            background-color: #f0f0f0;
-            min-height: 100vh;
-        }
-        
-        h1 {
-            margin-bottom: 20px;
-            color: #333;
-        }
-        
-        canvas {
-            border: 2px solid #333;
-            border-radius: 8px;
-            background-color: #87CEEB;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }
-        
-        .game-container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-        
-        .controls {
-            margin-top: 20px;
-            background-color: #fff;
-            padding: 15px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-            max-width: 800px;
-        }
-        
-        button {
-            background-color: #4CAF50;
-            border: none;
-            color: white;
-            padding: 10px 20px;
-            text-align: center;
-            text-decoration: none;
-            display: inline-block;
-            font-size: 16px;
-            margin: 10px 2px;
-            cursor: pointer;
-            border-radius: 4px;
-            transition: background-color 0.3s;
-        }
-        
-        button:hover {
-            background-color: #45a049;
-        }
-    </style>
-</head>
-<body>
-    <h1>Infinite Driving Game</h1>
-    
-    <div class="game-container">
-        <canvas id="game-canvas" width="800" height="600"></canvas>
-        
-        <div class="controls">
-            <button id="start-button">Start Game</button>
-            
-            <h3>How to Play:</h3>
-            <p>
-                <strong>Arrow Keys or WASD:</strong> Control the car<br>
-                <strong>Up Arrow / W:</strong> Accelerate<br>
-                <strong>Down Arrow / S:</strong> Brake/Reverse<br>
-                <strong>Left Arrow / A:</strong> Steer left<br>
-                <strong>Right Arrow / D:</strong> Steer right<br>
-                <strong>Space:</strong> Restart after game over
-            </p>
-            <p>Avoid obstacles (trash, stones) on the road to survive as long as possible!</p>
-        </div>
-    </div>
-    
-    <script src="wasm_exec.js"></script>
-    <script>
-        // Initialize WebAssembly
-        const go = new Go();
-        
-        // Load and run the WebAssembly module
-        WebAssembly.instantiateStreaming(fetch("main.wasm"), go.importObject)
-            .then((result) => {
-                go.run(result.instance);
-                console.log("WebAssembly module loaded");
-            })
-            .catch((err) => {
-                console.error("Failed to load WebAssembly module:", err);
-            });
-        
-        // Game control variables
-        let gameStarted = false;
-        const keyState = {};
-        
-        // Dom elements
-        const startButton = document.getElementById('start-button');
-        
-        // Start button handler
-        startButton.addEventListener('click', () => {
-            if (!gameStarted) {
-                window.startGame();
-                gameStarted = true;
-                startButton.textContent = 'Restart Game';
-            } else {
-                window.location.reload(); // Simple way to restart the game
-            }
-        });
-        
-        // Handle keyboard input
-        document.addEventListener('keydown', (event) => {
-            const key = event.code;
-            if (!keyState[key]) {
-                keyState[key] = true;
-                window.updateInput(key, true);
-            }
-        });
-        
-        document.addEventListener('keyup', (event) => {
-            const key = event.code;
-            keyState[key] = false;
-            window.updateInput(key, false);
-        });
-        
-        // Prevent arrow key scrolling
-        window.addEventListener('keydown', (e) => {
-            if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', ' '].includes(e.key)) {
-                e.preventDefault();
-            }
-        });
-    </script>
-</body>
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Infinite Driving Game</title>
+		<style>
+			body {
+				font-family: Arial, sans-serif;
+				display: flex;
+				flex-direction: column;
+				align-items: center;
+				margin: 0;
+				padding: 20px;
+				background-color: #f0f0f0;
+				min-height: 100vh;
+			}
+
+			h1 {
+				margin-bottom: 20px;
+				color: #333;
+			}
+
+			canvas {
+				border: 2px solid #333;
+				border-radius: 8px;
+				background-color: #87ceeb;
+				box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+			}
+
+			.game-container {
+				display: flex;
+				flex-direction: column;
+				align-items: center;
+			}
+
+			.controls {
+				margin-top: 20px;
+				background-color: #fff;
+				padding: 15px;
+				border-radius: 8px;
+				box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+				max-width: 800px;
+			}
+
+			button {
+				background-color: #4caf50;
+				border: none;
+				color: white;
+				padding: 10px 20px;
+				text-align: center;
+				text-decoration: none;
+				display: inline-block;
+				font-size: 16px;
+				margin: 10px 2px;
+				cursor: pointer;
+				border-radius: 4px;
+				transition: background-color 0.3s;
+			}
+
+			button:hover {
+				background-color: #45a049;
+			}
+		</style>
+	</head>
+	<body>
+		<h1>Infinite Driving Game</h1>
+
+		<div class="game-container">
+			<canvas id="game-canvas" width="800" height="600"></canvas>
+
+			<div class="controls">
+				<button id="start-button">Start Game</button>
+
+				<h3>How to Play:</h3>
+				<p>
+					<strong>Arrow Keys or WASD:</strong> Control the car<br />
+					<strong>Up Arrow / W:</strong> Accelerate<br />
+					<strong>Down Arrow / S:</strong> Brake/Reverse<br />
+					<strong>Left Arrow / A:</strong> Steer left<br />
+					<strong>Right Arrow / D:</strong> Steer right<br />
+					<strong>Space:</strong> Restart after game over
+				</p>
+				<p>
+					Avoid obstacles (trash, stones) on the road to survive as
+					long as possible!
+				</p>
+			</div>
+		</div>
+
+		<script src="wasm_exec.js"></script>
+		<script>
+			// Initialize WebAssembly
+			const go = new Go();
+
+			// Load and run the WebAssembly module
+			WebAssembly.instantiateStreaming(
+				fetch("main.wasm"),
+				go.importObject
+			)
+				.then((result) => {
+					go.run(result.instance);
+					console.log("WebAssembly module loaded");
+				})
+				.catch((err) => {
+					console.error("Failed to load WebAssembly module:", err);
+				});
+
+			// Game control variables
+			let gameStarted = false;
+			const keyState = {};
+
+			// Dom elements
+			const startButton = document.getElementById("start-button");
+
+			// Start button handler
+			startButton.addEventListener("click", () => {
+				if (!gameStarted) {
+					window.startGame();
+					gameStarted = true;
+					startButton.textContent = "Restart Game";
+					console.log("Game started"); // Debug log
+				} else {
+					window.location.reload();
+				}
+			});
+
+			document.addEventListener("keydown", (event) => {
+				const key = event.code; // "ArrowUp", "KeyW", etc.
+				if (!keyState[key]) {
+					keyState[key] = true;
+					console.log("Key down:", key); // Debug logging
+					window.updateInput(key, true);
+				}
+			});
+
+			document.addEventListener("keyup", (event) => {
+				const key = event.code;
+				keyState[key] = false;
+				console.log("Key up:", key); // Debug logging
+				window.updateInput(key, false);
+			});
+
+			// Prevent arrow key scrolling
+			window.addEventListener("keydown", (e) => {
+				if (
+					[
+						"ArrowUp",
+						"ArrowDown",
+						"ArrowLeft",
+						"ArrowRight",
+						" ",
+					].includes(e.key)
+				) {
+					e.preventDefault();
+				}
+			});
+		</script>
+	</body>
 </html>
