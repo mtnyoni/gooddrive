@@ -190,9 +190,9 @@ func (g *Game) updateCarPhysics(dt float64) {
 
 	// Apply steering with increased effect
 	if g.Keys["ArrowLeft"] || g.Keys["KeyA"] {
-		car.Steering = -20.0 // Much higher value for noticeable turning
+		car.Steering = -250.0 // Much higher value for noticeable turning
 	} else if g.Keys["ArrowRight"] || g.Keys["KeyD"] {
-		car.Steering = 20.0 // Much higher value
+		car.Steering = 250.0 // Much higher value
 	} else {
 		car.Steering = 0
 	}
@@ -268,7 +268,7 @@ func (g *Game) generateObstacles() {
 		roadLeftEdge := (canvasWidth - roadWidth) / 2
 		laneWidth := roadWidth / laneCount
 		lane := rand.Intn(laneCount)
-		x := float64(roadLeftEdge) + (float64(lane) * float64(laneWidth)) + float64(laneWidth/2)
+		x := float64(roadLeftEdge + (lane * laneWidth) + (laneWidth / 2))
 
 		// Create obstacle
 		obstacle := &Obstacle{
